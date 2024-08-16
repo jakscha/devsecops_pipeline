@@ -13,9 +13,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Build Image
-      run: sudo docker build . --file Dockerfile -t jakob999/vuln_app
-
     # todo run tests
     # todo run security scans
 
@@ -26,6 +23,11 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Push Image to Docker Hub
-      run: sudo docker push jakob999/vuln_app:latest
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v6.7.0
+      with:
+        context: .
+        push: true
+        tags: jakob999/vuln_app:latest
+
 
