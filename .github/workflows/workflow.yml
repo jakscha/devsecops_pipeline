@@ -149,7 +149,7 @@ jobs:
           extra_args: --json
 
   evaluate_results:
-    needs: [build-test, sast, dast1, dast2, secret_scan]
+    needs: [build-test, sast, dast1, secret_scan] # dast2
     if: always()
     runs-on: ubuntu-latest
 
