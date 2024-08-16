@@ -161,9 +161,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - run: pwd
+      - run: ls -la
       - run: cd .github/workflows
       - run: mkdir results
       - run: pwd
+      - run: ls -la
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
