@@ -170,7 +170,7 @@ jobs:
       - run: python3 .github/workflows/result_validation.py
 
       - name: Comment PR positive
-        if: ${{ SCAN_VALID == true && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'true' && github.event_name == 'pull_request'}}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -179,9 +179,9 @@ jobs:
 
 
       - name: Comment PR negative
-        if: ${{ SCAN_VALID == false && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'false' && github.event_name == 'pull_request'}}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: "The security scan was not valid. There are citical or high severity findings found by following tool(s): ${{ SCAN_RESULT }}"
+          body: "The security scan was not valid. There are citical or high severity findings found by following tool(s): ${{ env.SCAN_RESULT }}"
