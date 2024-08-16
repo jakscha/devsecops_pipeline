@@ -32,45 +32,56 @@ jobs:
         with:
           image-ref: 'vuln_app'
           format: json
+          output: trivy.json
 
-#  sast:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
-#
-#      - name: Run Bearer CLI
-#        uses: bearer/bearer-action@v2
-#        with:
-#          format: json
-#          scanner: sast
-#          output: sast_bearer.json
-#
-#      - name: Upload Output
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: bearer-output
-#          path: sast_bearer.json
+      - name: Upload Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-output
+          path: trivy.json
 
-  dependency_scan:
+  sast:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Run Aikido
-        uses: AikidoSec/github-actions-workflow@v1.0.13
+      - name: Run Bearer CLI
+        uses: bearer/bearer-action@v2
         with:
-          secret-key: ${{ secrets.AIKIDO_TOKEN }}
-          fail-on-timeout: true
-          fail-on-dependency-scan: true
-          fail-on-sast-scan: false
-          fail-on-iac-scan: false
-          minimum-severity: 'HIGH'
+          format: json
+          scanner: sast
+          output: sast_bearer.json
+
+      - name: Upload Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: bearer-output
+          path: sast_bearer.json
+
+    # sast2
+  dast1:
+    runs-on: ubuntu-latest
+
+#  dependency_scan:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#
+##      - name: Run Aikido
+##        uses: AikidoSec/github-actions-workflow@v1.0.13
+##        with:
+##          secret-key: ${{ secrets.AIKIDO_TOKEN }}
+##          fail-on-timeout: true
+##          fail-on-dependency-scan: true
+##          fail-on-sast-scan: false
+##          fail-on-iac-scan: false
+##          minimum-severity: 'HIGH'
 
   secret_scan:
     runs-on: ubuntu-latest
@@ -83,4 +94,7 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.81.9
         with:
           extra_args: --json
+
+  test:
+    uses: ./.github/workflows/build
 
