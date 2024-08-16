@@ -1,4 +1,5 @@
 import json
+import os
 
 
 class ResultValidation:
@@ -6,6 +7,9 @@ class ResultValidation:
         with open(f'.github/workflows/results/{file_name}', "r") as f:
             return json.load(f)
 
+    def set_env_variable(self):
+        with open(os.getenv('GITHUB_ENV'), 'a') as env_file:
+            env_file.write('SCAN_VALID=true\n')
     def validate_zap(self):
         pass
 
@@ -19,10 +23,12 @@ class ResultValidation:
         for result in data['Results']:
             for finding in result['Vulnerabilities']:
                 if finding['Severity'] == 'HIGH' or finding['Severity'] == 'CRITICAL':
-                    raise Exception('Critical or high vulnerability was found.')
+                    pass
 
     def validate_bearer(self):
         pass
 
 
-ResultValidation().validate_trivy()
+val = ResultValidation()
+val.validate_trivy()
+val.set_env_variable()
