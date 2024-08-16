@@ -33,31 +33,25 @@ jobs:
           image-ref: 'vuln_app'
           format: json
 
-  sast:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run Bearer CLI
-        uses: bearer/bearer-action@v2
-        with:
-          format: json
-          scanner: sast
-          output: sast_bearer.json
-
-      - name: Upload Output
-        uses: actions/upload-artifact@v3
-        with:
-          name: bearer-output
-          path: sast_bearer.json
-
-      - run: touch test.txt
-      - uses: actions/upload-artifact@v3
-        with:
-          name: test-datei
-          path: test.txt
+#  sast:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Run Bearer CLI
+#        uses: bearer/bearer-action@v2
+#        with:
+#          format: json
+#          scanner: sast
+#          output: sast_bearer.json
+#
+#      - name: Upload Output
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: bearer-output
+#          path: sast_bearer.json
 
 #  dependency_scan:
 #    runs-on: ubuntu-latest
@@ -81,3 +75,22 @@ jobs:
 #
 #      - name: Run TruffleHog
 #        uses: trufflesecurity/trufflehog@v3.81.9
+
+  secret_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install TruffleHog
+        run: pip install trufflehog
+
+      - name: Run TruffleHog and save output to file
+        run: trufflehog filesystem --json . > trufflehog_output.json
+
+      - name: Upload Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: trufflehog-output
+          path: trufflehog_output.json
