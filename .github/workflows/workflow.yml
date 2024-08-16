@@ -18,7 +18,7 @@ jobs:
         run: docker build . --file Dockerfile -t vuln_app
 
       - name: Run Container
-        run: docker run vuln_app -p 80:80
+        run: docker run -p 80:80 vuln_app
 
       - name: Wait for server to start
         run: sleep 5
