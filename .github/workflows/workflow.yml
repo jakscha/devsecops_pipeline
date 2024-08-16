@@ -44,14 +44,20 @@ jobs:
         uses: bearer/bearer-action@v2
         with:
           format: json
-          scanner: secrets
-          output: secrets_bearer.json
+          scanner: sast
+          output: sast_bearer.json
 
       - name: Upload Output
         uses: actions/upload-artifact@v3
         with:
           name: bearer-output
-          path: secrets_bearer.json
+          path: sast_bearer.json
+
+      - run: touch test.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test-datei
+          path: test.txt
 
 #  dependency_scan:
 #    runs-on: ubuntu-latest
