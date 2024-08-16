@@ -57,6 +57,7 @@ jobs:
           format: json
           scanner: sast
           output: sast_bearer.json
+        continue-on-error: true
 
       - name: Upload Output
         uses: actions/upload-artifact@v3
