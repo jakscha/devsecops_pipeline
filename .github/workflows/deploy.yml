@@ -15,6 +15,7 @@ jobs:
 
     - name: Build Image
       run: sudo docker build . --file Dockerfile -t vuln_app
+    - run: sudo docker image ls
 
     # todo run tests
     # todo run security scans
