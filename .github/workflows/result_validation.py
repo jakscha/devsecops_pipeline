@@ -3,7 +3,7 @@ import json
 
 class ResultValidation:
     def load_json_from_file(self, file_name: str) -> dict:
-        with open(f'results/{file_name}', "r") as f:
+        with open(f'.github/workflows/results/{file_name}', "r") as f:
             return json.load(f)
 
     def validate_zap(self):
