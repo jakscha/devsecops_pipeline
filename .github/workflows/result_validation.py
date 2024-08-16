@@ -14,11 +14,10 @@ class ResultValidation:
     def validate_zap(self):
         valid = True
         data = self.load_json_from_file('zap_scan/report_json.json')
-        findings = data['Results']
-        print(type(findings))
+
         for result in data['site']:
             for finding in result['alerts']:
-                if 'High' in finding['riskdesc'] or 'Critical' in finding['Severity']:
+                if 'High' in finding['riskdesc'] or 'Critical' in finding['riskdesc']:
                     self.count += 1
                     valid = False
         return valid
