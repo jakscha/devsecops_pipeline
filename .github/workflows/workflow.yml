@@ -172,7 +172,7 @@ jobs:
       - run: python3 .github/workflows/result_validation.py
 
       - name: Comment PR positive
-        if: ${{ env.SCAN_VALID == 'true' && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'True' && github.event_name == 'pull_request'}}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -181,7 +181,7 @@ jobs:
 
 
       - name: Comment PR negative
-        if: ${{ env.SCAN_VALID == 'false' && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'False' && github.event_name == 'pull_request'}}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
