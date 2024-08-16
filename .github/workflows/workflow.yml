@@ -61,8 +61,8 @@ jobs:
           path: sast_bearer.json
 
     # sast2
-  dast1:
-    runs-on: ubuntu-latest
+  # dast1:
+  #   runs-on: ubuntu-latest
 
 #  dependency_scan:
 #    runs-on: ubuntu-latest
