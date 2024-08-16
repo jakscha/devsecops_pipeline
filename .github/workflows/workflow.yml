@@ -113,7 +113,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: nuclei-output
-          path: nuclei.json
+          path: nuclei.sarif
 
 
 
@@ -164,7 +164,7 @@ jobs:
           path: .github/workflows/results/
 
       - name: Download ZAP Report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: zap_scan
           path: .github/workflows/results
