@@ -38,7 +38,7 @@ jobs:
           output: trivy.json
 
       - name: Upload Output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-output
           path: trivy.json
@@ -161,11 +161,12 @@ jobs:
         uses: actions/checkout@v3
 
       - run: cd .github/workflows
+      - run: mkdir results
 
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: trivy-output
-          path: results/trivy.json
+          path: results/
 
       - run: python3 result_validation.py
