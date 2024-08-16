@@ -66,8 +66,11 @@ jobs:
         uses: AikidoSec/github-actions-workflow@v1.0.13
         with:
           secret-key: ${{ secrets.AIKIDO_TOKEN }}
+          fail-on-timeout: true
+          fail-on-dependency-scan: true
+          fail-on-sast-scan: false
+          fail-on-iac-scan: false
           minimum-severity: 'HIGH'
-          base_commit_id: 0ade10c
 
   secret_scan:
     runs-on: ubuntu-latest
