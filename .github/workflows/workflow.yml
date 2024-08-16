@@ -78,3 +78,5 @@ jobs:
         with:
           extra_args: --json
 
+      - run: ls -la
+
