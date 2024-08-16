@@ -170,7 +170,8 @@ jobs:
           path: .github/workflows/results/
 
       - run: ls -la .github/workflows
-      - run: ls -la .github/workflows/zap_scan
+      - run: ls -la .github/workflows/results
+      - run: ls -la .github/workflows/results/zap_scan
 
       - run: python3 .github/workflows/result_validation.py
 
