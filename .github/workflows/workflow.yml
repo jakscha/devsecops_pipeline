@@ -66,16 +66,6 @@ jobs:
 #          secret-key: ${{ secrets.AIKIDO_TOKEN }}
 #          minimum-severity: 'HIGH'
 
-#  secret_scan:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
-#
-#      - name: Run TruffleHog
-#        uses: trufflesecurity/trufflehog@v3.81.9
-
   secret_scan:
     runs-on: ubuntu-latest
 
@@ -83,14 +73,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install TruffleHog
-        run: pip install trufflehog
-
-      - name: Run TruffleHog and save output to file
-        run: trufflehog filesystem --json . > trufflehog_output.json
-
-      - name: Upload Output
-        uses: actions/upload-artifact@v3
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@v3.81.9
         with:
-          name: trufflehog-output
-          path: trufflehog_output.json
+          extra_args: --json
+
