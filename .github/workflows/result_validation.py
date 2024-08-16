@@ -13,7 +13,7 @@ class ResultValidation:
 
     def validate_zap(self):
         valid = True
-        data = self.load_json_from_file('zap_scan/report_json.json')
+        data = self.load_json_from_file('report_json.json')
 
         for result in data['site']:
             for finding in result['alerts']:

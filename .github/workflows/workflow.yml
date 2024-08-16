@@ -169,10 +169,6 @@ jobs:
           name: zap_scan
           path: .github/workflows/results/
 
-      - run: ls -la .github/workflows
-      - run: ls -la .github/workflows/results
-      - run: ls -la .github/workflows/results/zap_scan
-
       - run: python3 .github/workflows/result_validation.py
 
       - name: Comment PR positive
