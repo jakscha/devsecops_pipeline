@@ -167,7 +167,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: zap_scan
-          path: .github/workflows/results
+          path: .github/workflows/results/
 
       - run: python3 .github/workflows/result_validation.py
 
