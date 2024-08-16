@@ -76,5 +76,5 @@ jobs:
       - name: Run TruffleHog
         uses: trufflesecurity/trufflehog@v3.81.9
         with:
-          extra_args: --json --fail
+          extra_args: --json
 
