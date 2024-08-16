@@ -115,7 +115,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: nuclei-output
-          path: nuclei_output.json
+          path: nuclei.sarif
+
+
 
 
 #  dependency_scan:
