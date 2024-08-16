@@ -150,3 +150,22 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.81.9
         with:
           extra_args: --json
+
+  evaluate_results:
+    needs: [build-test, sast, dast1, dast2, secret_scan]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - run: cd .github/workflows
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-output
+          path: results/trivy.json
+
+      - run: python3 result_validation.py
