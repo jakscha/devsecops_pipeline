@@ -187,3 +187,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
           body: "The security scan was not valid. ${{ env.SCAN_RESULT }}"
+
+      - name: Fail workflow if scan is invalid
+        if: ${{ env.SCAN_VALID == 'False' && github.event_name == 'pull_request'}}
+        run: |
+          echo "The security scan was not valid. Failing the workflow."
+          exit 1

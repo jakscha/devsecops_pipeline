@@ -60,7 +60,7 @@ class ResultValidation:
             valid = False
             print(f'Bearer scan: {valid}')
 
-        tools = tools.replace(' ', ', ')[:2]
+        tools = tools.replace(' ', ', ')[:-2]
         scan_result = f'There were {self.count} high/critical severity vulnerabilities found by: {tools}'
 
         with open(os.getenv('GITHUB_ENV'), 'a') as env_file:
