@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +25,13 @@ jobs:
 
       - name: Test if container is reachable
         run: curl http://localhost:80
+
+  sast:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Bearer CLI
+        uses: bearer/bearer-action@v2
