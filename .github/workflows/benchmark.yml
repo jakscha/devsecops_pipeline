@@ -1,0 +1,155 @@
+name: Run Benchmark Test
+
+on:
+  push:
+    branches:
+      - benchmark
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Container
+        run: cd VMs && ./buildDockerImage.sh
+
+      - name: Run Container
+        run: cd VMs && ./runDockerImage.sh
+
+      - name: Wait for server to start
+        run: sleep 10
+
+      - name: Test if container is reachable
+        run: curl https://localhost:8443/benchmark
+
+
+  # SAST-scanning with bearer
+  sast:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Bearer CLI
+        uses: bearer/bearer-action@v2
+        with:
+          format: json
+          scanner: sast
+          output: bearer.json
+        continue-on-error: true
+
+      - name: Upload Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: bearer-output
+          path: bearer.json
+
+    # sast2
+
+
+  dast1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Container
+        run: cd VMs && ./buildDockerImage.sh
+
+      - name: Run Container
+        run: cd VMs && ./runDockerImage.sh
+
+      - name: Wait for server to start
+        run: sleep 10
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: 'https://localhost:8443/benchmark'
+          allow_issue_writing: false
+
+  # DAST 2
+  dast2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Container
+        run: cd VMs && ./buildDockerImage.sh
+
+      - name: Run Container
+        run: cd VMs && ./runDockerImage.sh
+
+      - name: Wait for server to start
+        run: sleep 10
+
+      - name: Run Nuclei Scanner
+        uses: projectdiscovery/nuclei-action@main
+        with:
+          target: https://localhost:8443/benchmark
+
+      - name: Upload Nuclei Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuclei-output
+          path: nuclei.sarif
+
+  dependency_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/maven@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          json: true
+      - name: Upload Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-output
+          path: snyk.json
+
+  container_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Container
+        run: docker build . --file Dockerfile -t vuln_app
+
+      # Container Scan
+      - name: Run Trivy vulnerablility scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'vuln_app'
+          format: json
+          output: trivy.json
+
+      - name: Upload Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-output
+          path: trivy.json
+
+  secret_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@v3.81.9
+        with:
+          extra_args: --json
