@@ -24,7 +24,6 @@ class ResultValidation:
 
     def validate_nuclei(self):
         valid = True
-        return True
         data = self.load_json_from_file('nuclei.sarif')
 
         for run in data['runs']:
