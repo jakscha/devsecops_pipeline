@@ -127,12 +127,12 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk.sarif
+          json: true
       - name: Upload Output
         uses: actions/upload-artifact@v4
         with:
           name: snyk-output
-          path: snyk.sarif
+          path: snyk.json
 
 
   secret_scan:
