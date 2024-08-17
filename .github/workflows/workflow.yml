@@ -53,14 +53,14 @@ jobs:
         with:
           format: json
           scanner: sast
-          output: sast_bearer.json
+          output: bearer.json
         continue-on-error: true
 
       - name: Upload Output
         uses: actions/upload-artifact@v4
         with:
           name: bearer-output
-          path: sast_bearer.json
+          path: bearer.json
 
     # sast2
 
@@ -88,34 +88,32 @@ jobs:
           allow_issue_writing: false
 
   # DAST 2
-#  dast2:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
-#
-#      - name: Build Container
-#        run: docker build . --file Dockerfile -t vuln_app
-#
-#      - name: Run Container
-#        run: docker run -p 80:80 -d vuln_app
-#
-#      - name: Wait for server to start
-#        run: sleep 5
-#
-#      - name: Run Nuclei Scanner
-#        uses: projectdiscovery/nuclei-action@main
-#        with:
-#          target: http://localhost:80
-#
-#      - name: Upload Nuclei Output
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: nuclei-output
-#          path: nuclei.sarif
+  dast2:
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
+      - name: Build Container
+        run: docker build . --file Dockerfile -t vuln_app
+
+      - name: Run Container
+        run: docker run -p 80:80 -d vuln_app
+
+      - name: Wait for server to start
+        run: sleep 5
+
+      - name: Run Nuclei Scanner
+        uses: projectdiscovery/nuclei-action@main
+        with:
+          target: http://localhost:80
+
+      - name: Upload Nuclei Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: nuclei-output
+          path: nuclei.sarif
 
   dependency_scan:
     runs-on: ubuntu-latest
@@ -148,7 +146,7 @@ jobs:
           extra_args: --json
 
   evaluate_results:
-    needs: [build-test, sast, dast1, secret_scan, dependency_scan] # dast2
+    needs: [build-test, sast, dast1, dast2, secret_scan, dependency_scan]
     if: always()
     runs-on: ubuntu-latest
 
@@ -157,10 +155,15 @@ jobs:
         uses: actions/checkout@v3
 
       # Download reports
-      - name: Download Trivy Report
+      - name: Download Bearer Report
         uses: actions/download-artifact@v4
         with:
-          name: trivy-output
+          name: bearer-output
+          path: .github/workflows/results/
+      - name: Download Nuclei Report
+        uses: actions/download-artifact@v4
+        with:
+          name: nuclei-output
           path: .github/workflows/results/
       - name: Download ZAP Report
         uses: actions/download-artifact@v3
@@ -171,6 +174,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: snyk-output
+          path: .github/workflows/results/
+      - name: Download Trivy Report
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-output
           path: .github/workflows/results/
 
 
