@@ -94,6 +94,7 @@ jobs:
         uses: projectdiscovery/nuclei-action@main
         with:
           target: https://localhost:8443/benchmark
+        continue-on-error: true
 
       - name: Upload Nuclei Output
         uses: actions/upload-artifact@v4
@@ -112,6 +113,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           json: true
+        continue-on-error: true
       - name: Upload Output
         uses: actions/upload-artifact@v4
         with:
@@ -126,15 +128,16 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Container
-        run: docker build . --file Dockerfile -t vuln_app
+        run: cd VMs && ./buildDockerImage.sh
 
       # Container Scan
       - name: Run Trivy vulnerablility scanner
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: 'vuln_app'
+          image-ref: 'benchmark'
           format: json
           output: trivy.json
+        continue-on-error: true
 
       - name: Upload Output
         uses: actions/upload-artifact@v4
