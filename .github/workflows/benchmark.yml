@@ -1,4 +1,4 @@
-name: Test and Scanning workflow
+name: Run Benchmark Test
 
 on: [workflow_dispatch]
 
