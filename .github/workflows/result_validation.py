@@ -107,8 +107,6 @@ class ResultValidation:
             env_file.write(f'SCAN_RESULT={scan_result}\n')
 
 
-ResultValidation().scan()
-
 try:
     ResultValidation().scan()
 except Exception as e:
