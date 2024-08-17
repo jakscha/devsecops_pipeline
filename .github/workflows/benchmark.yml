@@ -1,6 +1,9 @@
 name: Run Benchmark Test
 
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - benchmark
 
 jobs:
   build-test:

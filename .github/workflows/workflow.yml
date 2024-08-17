@@ -26,19 +26,6 @@ jobs:
       - name: Test if container is reachable
         run: curl http://localhost:80
 
-      # Container Scan
-      - name: Run Trivy vulnerablility scanner
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          image-ref: 'vuln_app'
-          format: json
-          output: trivy.json
-
-      - name: Upload Output
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-output
-          path: trivy.json
 
   # SAST-scanning with bearer
   sast:
@@ -132,6 +119,29 @@ jobs:
           name: snyk-output
           path: snyk.json
 
+  container_scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Container
+        run: docker build . --file Dockerfile -t vuln_app
+
+      # Container Scan
+      - name: Run Trivy vulnerablility scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'vuln_app'
+          format: json
+          output: trivy.json
+
+      - name: Upload Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-output
+          path: trivy.json
 
   secret_scan:
     runs-on: ubuntu-latest
