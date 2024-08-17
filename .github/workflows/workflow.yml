@@ -95,6 +95,7 @@ jobs:
         uses: projectdiscovery/nuclei-action@main
         with:
           target: http://localhost:80
+        continue-on-error: true
 
       - name: Upload Nuclei Output
         uses: actions/upload-artifact@v4
@@ -113,6 +114,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           json: true
+        continue-on-error: true
       - name: Upload Output
         uses: actions/upload-artifact@v4
         with:
@@ -136,6 +138,7 @@ jobs:
           image-ref: 'vuln_app'
           format: json
           output: trivy.json
+        continue-on-error: true
 
       - name: Upload Output
         uses: actions/upload-artifact@v4
