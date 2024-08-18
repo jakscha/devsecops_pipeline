@@ -1,0 +1,104 @@
+{
+	"version": "2.1.0",
+	"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+	"runs": [
+		{
+			"tool": {
+				"driver": {
+					"name": "Nuclei",
+					"organization": "ProjectDiscovery",
+					"product": "Nuclei",
+					"shortDescription": {
+						"text": "Fast and Customizable Vulnerability Scanner"
+					},
+					"fullDescription": {
+						"text": "Fast and customizable vulnerability scanner based on simple YAML based DSL"
+					},
+					"fullName": "Nuclei v3.3.1",
+					"semanticVersion": "v3.3.1",
+					"downloadUri": "https://github.com/projectdiscovery/nuclei/releases",
+					"rules": [
+						{
+							"id": "ssh-auth-methods",
+							"name": "SSH Auth Methods - Detection",
+							"shortDescription": {
+								"text": "SSH Auth Methods - Detection (ssh-auth-methods) found on localhost:22"
+							},
+							"fullDescription": {
+								"text": "SSH (Secure Shell) authentication modes are methods used to verify the identity of users and ensure secure access to remote systems. Common SSH authentication modes include password-based authentication, which relies on a secret passphrase, and public key authentication, which uses cryptographic keys for a more secure and convenient login process. Additionally, multi-factor authentication (MFA) can be employed to enhance security by requiring users to provide multiple forms of authentication, such as a password and a one-time code.\n\nMore details at\n\n"
+							},
+							"properties": {
+								"security-severity": "1",
+								"tags": [
+									"security"
+								]
+							}
+						}
+					]
+				}
+			},
+			"results": [
+				{
+					"ruleId": "ssh-auth-methods",
+					"rule": {
+						"id": "ssh-auth-methods",
+						"toolComponent": {}
+					},
+					"level": "none",
+					"kind": "open",
+					"message": {
+						"text": "SSH Auth Methods - Detection (ssh-auth-methods) found on localhost:22"
+					},
+					"analysisTarget": {},
+					"webRequest": {
+						"body": {}
+					},
+					"webResponse": {
+						"body": {}
+					},
+					"locations": [
+						{
+							"message": {
+								"text": "localhost:22"
+							},
+							"physicalLocation": {
+								"address": {},
+								"artifactLocation": {
+									"uri": "/",
+									"description": {
+										"text": "localhost:22"
+									}
+								}
+							}
+						}
+					]
+				}
+			],
+			"invocations": [
+				{
+					"commandLine": "/opt/hostedtoolcache/nuclei/3.3.1/x64/nuclei",
+					"arguments": [
+						"-target=https://localhost:8443/benchmark",
+						"-se=nuclei.sarif",
+						"-o=nuclei.log",
+						"-irr"
+					],
+					"responseFiles": [
+						{
+							"uri": "file:///nuclei.sarif",
+							"description": {
+								"text": "Nuclei Sarif Report"
+							}
+						}
+					],
+					"executionSuccessful": false,
+					"executableLocation": {},
+					"workingDirectory": {},
+					"stdin": {},
+					"stdout": {},
+					"stderr": {}
+				}
+			]
+		}
+	]
+}
