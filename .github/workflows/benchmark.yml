@@ -20,7 +20,7 @@ jobs:
         run: cd VMs && ./runDockerImage.sh
 
       - name: Wait for server to start
-        run: sleep 10
+        run: sleep 60
 
       - name: Test if container is reachable
         run: curl --insecure https://localhost:8443/benchmark
@@ -65,7 +65,7 @@ jobs:
         run: cd VMs && ./runDockerImage.sh
 
       - name: Wait for server to start
-        run: sleep 10
+        run: sleep 60
 
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.10.0
@@ -88,7 +88,7 @@ jobs:
         run: cd VMs && ./runDockerImage.sh
 
       - name: Wait for server to start
-        run: sleep 10
+        run: sleep 60
 
       - name: Run Nuclei Scanner
         uses: projectdiscovery/nuclei-action@main
