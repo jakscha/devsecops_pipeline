@@ -23,7 +23,7 @@ jobs:
         run: sleep 10
 
       - name: Test if container is reachable
-        run: curl https://localhost:8443/benchmark
+        run: curl --insecure https://localhost:8443/benchmark
 
 
   # SAST-scanning with bearer
