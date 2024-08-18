@@ -1,0 +1,2563 @@
+{
+  "vulnerabilities": [
+    {
+      "id": "SNYK-JAVA-DOM4J-174153",
+      "title": "XML External Entity (XXE) Injection",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N/E:P",
+      "credit": [
+        "Mario Areias"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Proof of Concept",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [
+        {
+          "version": [
+            "[0,]"
+          ],
+          "functionId": {
+            "filePath": "org/dom4j/Namespace.java",
+            "className": "Namespace",
+            "functionName": "<init>"
+          }
+        },
+        {
+          "version": [
+            "[0,]"
+          ],
+          "functionId": {
+            "filePath": "org/dom4j/QName.java",
+            "className": "QName",
+            "functionName": "<init>"
+          }
+        }
+      ],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "dom4j:dom4j",
+      "references": [
+        {
+          "url": "https://github.com/dom4j/dom4j/commit/e598eb43d418744c4dbf62f647dd2381c9ce9387",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/dom4j/dom4j/issues/48",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://ihacktoprotect.com/post/dom4j-xml-injection/",
+          "title": "POC: Ihacktoprotect Blog"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "SUSE",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N",
+          "cvssV3BaseScore": 6.1,
+          "modificationTime": "2024-03-11T09:46:26.800032Z"
+        },
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "cvssV3BaseScore": 7.5,
+          "modificationTime": "2024-03-11T09:47:19.987177Z"
+        },
+        {
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "cvssV3BaseScore": 5.3,
+          "modificationTime": "2024-03-11T09:53:54.900402Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N/E:P",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:00:55.789489Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N",
+          "assigner": "SUSE",
+          "severity": "medium",
+          "baseScore": 6.1,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:46:26.800032Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:47:19.987177Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:53:54.900402Z"
+        }
+      ],
+      "description": "## Overview\n[dom4j:dom4j](https://github.com/dom4j/dom4j) is a flexible XML framework for Java. *Note*: this artifact has been deprecated for `org.dom4j:dom4j`.\n\nAffected versions of this package are vulnerable to XML External Entity (XXE) Injection due to improper validation of the `QName` inputs.\n\n## Details\nXXE Injection is a type of attack against an application that parses XML input.\nXML is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable. By default, many XML processors allow specification of an external entity, a URI that is dereferenced and evaluated during XML processing. When an XML document is being parsed, the parser can make a request and include the content at the specified URI inside of the XML document.\n\nAttacks can include disclosing local files, which may contain sensitive data such as passwords or private user data, using file: schemes or relative paths in the system identifier.\n\nFor example, below is a sample XML document, containing an XML element- username.\n\n```\n<xml>\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n   <username>John</username>\n</xml>\n```\n\nAn external XML entity - `xxe`, is defined using a system identifier and present within a DOCTYPE header. These entities can access local or remote content. For example the below code contains an external XML entity that would fetch the content of  `/etc/passwd` and display it to the user rendered by `username`.\n\n```\n<xml>\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<!DOCTYPE foo [\n   <!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n   <username>&xxe;</username>\n</xml>\n```\n\nOther XXE Injection attacks can access local resources that may not stop returning data, possibly impacting application availability and leading to Denial of Service.\n\n## Remediation\nThere is no fixed version for `dom4j:dom4j`.\n\n## References\n- [GitHub Commit](https://github.com/dom4j/dom4j/commit/e598eb43d418744c4dbf62f647dd2381c9ce9387)\n- [GitHub Issue](https://github.com/dom4j/dom4j/issues/48)\n- [POC: Ihacktoprotect Blog](https://ihacktoprotect.com/post/dom4j-xml-injection/)\n",
+      "epssDetails": {
+        "percentile": "0.71140",
+        "probability": "0.00325",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-1000632"
+        ],
+        "CWE": [
+          "CWE-611"
+        ],
+        "GHSA": [
+          "GHSA-6pcc-3rfx-4gpm"
+        ]
+      },
+      "packageName": "dom4j:dom4j",
+      "proprietary": false,
+      "creationTime": "2019-04-10T16:07:04.634619Z",
+      "functions_new": [
+        {
+          "version": [
+            "[0,]"
+          ],
+          "functionId": {
+            "className": "org.dom4j.Namespace",
+            "functionName": "<init>"
+          }
+        },
+        {
+          "version": [
+            "[0,]"
+          ],
+          "functionId": {
+            "className": "org.dom4j.QName",
+            "functionName": "<init>"
+          }
+        }
+      ],
+      "alternativeIds": [],
+      "disclosureTime": "2018-07-01T19:12:29Z",
+      "exploitDetails": {
+        "sources": [
+          "Snyk"
+        ],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Proof of Concept",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Proof of Concept",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "dom4j",
+        "artifactId": "dom4j"
+      },
+      "publicationTime": "2018-08-21T14:16:13Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:53:54.900402Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.hibernate:hibernate-core@3.6.10.Final",
+        "dom4j:dom4j@1.6.1"
+      ],
+      "upgradePath": [
+        false,
+        "org.hibernate:hibernate-core@5.1.17.Final"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "dom4j:dom4j",
+      "version": "1.6.1"
+    },
+    {
+      "id": "SNYK-JAVA-DOM4J-2812975",
+      "title": "XML External Entity (XXE) Injection",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+      "credit": [
+        "Unknown"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 7.4,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "dom4j:dom4j",
+      "references": [
+        {
+          "url": "https://github.com/dom4j/dom4j/commit/a822852",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1694235",
+          "title": "RedHat Bugzilla Bug"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "critical",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "cvssV3BaseScore": 9.8,
+          "modificationTime": "2024-03-11T09:50:18.813214Z"
+        },
+        {
+          "assigner": "Red Hat",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+          "cvssV3BaseScore": 7.4,
+          "modificationTime": "2024-03-11T09:53:57.985080Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.4,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:55:31.083245Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "assigner": "NVD",
+          "severity": "critical",
+          "baseScore": 9.8,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:50:18.813214Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:H",
+          "assigner": "Red Hat",
+          "severity": "high",
+          "baseScore": 7.4,
+          "cvssVersion": "3.0",
+          "modificationTime": "2024-03-11T09:53:57.985080Z"
+        }
+      ],
+      "description": "## Overview\n[dom4j:dom4j](https://github.com/dom4j/dom4j) is a flexible XML framework for Java. *Note*: this artifact has been deprecated for `org.dom4j:dom4j`.\n\nAffected versions of this package are vulnerable to XML External Entity (XXE) Injection. By using the default `SaxReader()` provided by Dom4J, external DTDs and External Entities are allowed, resulting in a possible XXE.\n\n## Details\nXXE Injection is a type of attack against an application that parses XML input.\nXML is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable. By default, many XML processors allow specification of an external entity, a URI that is dereferenced and evaluated during XML processing. When an XML document is being parsed, the parser can make a request and include the content at the specified URI inside of the XML document.\n\nAttacks can include disclosing local files, which may contain sensitive data such as passwords or private user data, using file: schemes or relative paths in the system identifier.\n\nFor example, below is a sample XML document, containing an XML element- username.\n\n```\n<xml>\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n   <username>John</username>\n</xml>\n```\n\nAn external XML entity - `xxe`, is defined using a system identifier and present within a DOCTYPE header. These entities can access local or remote content. For example the below code contains an external XML entity that would fetch the content of  `/etc/passwd` and display it to the user rendered by `username`.\n\n```\n<xml>\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<!DOCTYPE foo [\n   <!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n   <username>&xxe;</username>\n</xml>\n```\n\nOther XXE Injection attacks can access local resources that may not stop returning data, possibly impacting application availability and leading to Denial of Service.\n\n## Remediation\nThere is no fixed version for `dom4j:dom4j`.\n\n## References\n- [GitHub Commit](https://github.com/dom4j/dom4j/commit/a822852)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1694235)\n",
+      "epssDetails": {
+        "percentile": "0.79959",
+        "probability": "0.00664",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-10683"
+        ],
+        "CWE": [
+          "CWE-611"
+        ],
+        "GHSA": [
+          "GHSA-hwj3-m3p6-hj38"
+        ]
+      },
+      "packageName": "dom4j:dom4j",
+      "proprietary": false,
+      "creationTime": "2022-05-10T12:56:27.582369Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2020-04-15T09:38:17Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "dom4j",
+        "artifactId": "dom4j"
+      },
+      "publicationTime": "2020-04-16T15:22:50Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:53:57.985080Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.hibernate:hibernate-core@3.6.10.Final",
+        "dom4j:dom4j@1.6.1"
+      ],
+      "upgradePath": [
+        false,
+        "org.hibernate:hibernate-core@5.1.17.Final"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "dom4j:dom4j",
+      "version": "1.6.1"
+    },
+    {
+      "id": "SNYK-JAVA-ORGBOUNCYCASTLE-5771339",
+      "title": "Information Exposure",
+      "CVSSv3": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "credit": [
+        "Unknown"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 4.7,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.bouncycastle:bcprov-jdk15on",
+      "references": [
+        {
+          "url": "https://github.com/bcgit/bc-java/commit/b00b58873643abc7e834f07e345e0165bb3a1786",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/bcgit/bc-java/wiki/CVE-2023-33201",
+          "title": "GitHub Wiki"
+        },
+        {
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2215465",
+          "title": "RedHat Bugzilla Bug"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "cvssV3BaseScore": 5.3,
+          "modificationTime": "2024-03-11T09:53:23.489671Z"
+        },
+        {
+          "assigner": "SUSE",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+          "cvssV3BaseScore": 8.1,
+          "modificationTime": "2024-03-11T09:53:25.282919Z"
+        },
+        {
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "cvssV3BaseScore": 5.3,
+          "modificationTime": "2024-03-11T09:54:01.546312Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 4.7,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:05:05.863503Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "assigner": "NVD",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:53:23.489671Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+          "assigner": "SUSE",
+          "severity": "high",
+          "baseScore": 8.1,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:53:25.282919Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:54:01.546312Z"
+        }
+      ],
+      "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Information Exposure due to missing validation for the X.500 name of any certificate, subject, or issuer. The presence of a wild card may lead to information disclosure. This could allow a malicious user to obtain unauthorized information via blind LDAP Injection, exploring the environment and enumerating data. \r\n\r\n**Note:**\r\n\r\nThe exploit depends on the structure of the target LDAP directory as well as what kind of errors are exposed to the user.\n## Remediation\nA fix was pushed into the `master` branch but not yet published.\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/b00b58873643abc7e834f07e345e0165bb3a1786)\n- [GitHub Wiki](https://github.com/bcgit/bc-java/wiki/CVE-2023-33201)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=2215465)\n",
+      "epssDetails": {
+        "percentile": "0.36394",
+        "probability": "0.00084",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2023-33201"
+        ],
+        "CWE": [
+          "CWE-200"
+        ]
+      },
+      "packageName": "org.bouncycastle:bcprov-jdk15on",
+      "proprietary": false,
+      "creationTime": "2023-07-11T15:15:48.237049Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2023-06-16T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.bouncycastle",
+        "artifactId": "bcprov-jdk15on"
+      },
+      "publicationTime": "2023-06-30T08:15:58.270885Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:54:01.546312Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.bouncycastle:bcprov-jdk15on@1.70"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "org.bouncycastle:bcprov-jdk15on",
+      "version": "1.70"
+    },
+    {
+      "id": "SNYK-JAVA-ORGBOUNCYCASTLE-6084022",
+      "title": "Uncontrolled Resource Consumption ('Resource Exhaustion')",
+      "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "credit": [
+        "Amazon AWS Security Team"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 5.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.bouncycastle:bcprov-jdk15on",
+      "references": [
+        {
+          "url": "https://github.com/bcgit/bc-java/commit/eff6adf03f426dc4d55e8305255eb38c811ddda7",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/bcgit/bc-java/wiki/CVE-2023-33202",
+          "title": "GitHub Wiki"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "cvssV3BaseScore": 5.5,
+          "modificationTime": "2024-06-19T13:32:28.019885Z"
+        },
+        {
+          "assigner": "NVD",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "cvssV3BaseScore": 5.5,
+          "modificationTime": "2024-03-11T09:54:08.209045Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 5.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:09:26.802255Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "baseScore": 5.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-06-19T13:32:28.019885Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "assigner": "NVD",
+          "severity": "medium",
+          "baseScore": 5.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:54:08.209045Z"
+        }
+      ],
+      "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Uncontrolled Resource Consumption ('Resource Exhaustion') within the `org.bouncycastle.openssl.PEMParser` class. Parsing a file that has crafted `ASN.1` data through the `PEMParser` causes an `OutOfMemoryError`.\r\n\r\n## Workaround\r\nThe attack can be avoided by filtering `PEM` requests containing `EXTERNAL` tagged encodings.\n## Remediation\nThere is no fixed version for `org.bouncycastle:bcprov-jdk15on`.\n\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/eff6adf03f426dc4d55e8305255eb38c811ddda7)\n- [GitHub Wiki](https://github.com/bcgit/bc-java/wiki/CVE-2023-33202)\n",
+      "epssDetails": {
+        "percentile": "0.16378",
+        "probability": "0.00045",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2023-33202"
+        ],
+        "CWE": [
+          "CWE-400"
+        ]
+      },
+      "packageName": "org.bouncycastle:bcprov-jdk15on",
+      "proprietary": false,
+      "creationTime": "2023-11-24T08:10:03.845529Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2023-11-23T16:44:11Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.bouncycastle",
+        "artifactId": "bcprov-jdk15on"
+      },
+      "publicationTime": "2023-11-24T08:21:18.093798Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-06-19T13:32:28.019885Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.bouncycastle:bcprov-jdk15on@1.70"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "org.bouncycastle:bcprov-jdk15on",
+      "version": "1.70"
+    },
+    {
+      "id": "SNYK-JAVA-ORGBOUNCYCASTLE-6613080",
+      "title": "Allocation of Resources Without Limits or Throttling",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "credit": [
+        "Unknown"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[1.63,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 5.3,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.bouncycastle:bcprov-jdk15on",
+      "references": [
+        {
+          "url": "https://github.com/bcgit/bc-csharp/commit/45c6b993945f01076e386cb59988b1836a329999",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/bcgit/bc-java/commit/efc498ca4caa340ac2fe11f2efee06c1a294501f",
+          "title": "GitHub Commit"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "cvssV3BaseScore": 6.5,
+          "modificationTime": "2024-08-09T13:34:05.609976Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-08-08T13:39:10.396709Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "baseScore": 6.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-08-09T13:34:05.609976Z"
+        }
+      ],
+      "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Allocation of Resources Without Limits or Throttling in the `solveQuadraticEquation()` function used for certificate verification in `ECCurve.java`. Passing a large f2m parameter can cause excessive CPU consumption.\n## Remediation\nThere is no fixed version for `org.bouncycastle:bcprov-jdk15on`.\n\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-csharp/commit/45c6b993945f01076e386cb59988b1836a329999)\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/efc498ca4caa340ac2fe11f2efee06c1a294501f)\n",
+      "epssDetails": null,
+      "identifiers": {
+        "CVE": [
+          "CVE-2024-29857"
+        ],
+        "CWE": [
+          "CWE-770"
+        ]
+      },
+      "packageName": "org.bouncycastle:bcprov-jdk15on",
+      "proprietary": false,
+      "creationTime": "2024-04-14T15:09:02.748589Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2024-04-11T08:06:20Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.bouncycastle",
+        "artifactId": "bcprov-jdk15on"
+      },
+      "publicationTime": "2024-04-14T15:09:02.939501Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-08-09T13:34:05.609976Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.bouncycastle:bcprov-jdk15on@1.70"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "org.bouncycastle:bcprov-jdk15on",
+      "version": "1.70"
+    },
+    {
+      "id": "SNYK-JAVA-ORGHIBERNATE-1041788",
+      "title": "SQL Injection",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N/E:U/RL:O/RC:U",
+      "credit": [
+        "Unknown"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,5.4.24.Final)"
+        ]
+      },
+      "exploit": "Unproven",
+      "fixedIn": [
+        "5.4.24.Final"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": "This vulnerability is only applicable on systems using JPA Criteria API"
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 8.2,
+      "functions": [
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/loader/plan/exec/query/internal/SelectStatementBuilder.java",
+            "className": "SelectStatementBuilder",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/Delete.java",
+            "className": "Delete",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/Insert.java",
+            "className": "Insert",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/InsertSelect.java",
+            "className": "InsertSelect",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/QuerySelect.java",
+            "className": "QuerySelect",
+            "functionName": "toQueryString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/Select.java",
+            "className": "Select",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/SimpleSelect.java",
+            "className": "SimpleSelect",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/sql/Update.java",
+            "className": "Update",
+            "functionName": "toStatementString"
+          }
+        }
+      ],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.hibernate:hibernate-core",
+      "references": [
+        {
+          "url": "https://github.com/hibernate/hibernate-orm/commit/59fede7acaaa1579b561407aefa582311f7ebe78",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://access.redhat.com/security/cve/cve-2020-25638",
+          "title": "Redhat CVE Details"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "cvssV3BaseScore": 7.4,
+          "modificationTime": "2024-03-11T09:50:47.602540Z"
+        },
+        {
+          "assigner": "Red Hat",
+          "severity": "high",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "cvssV3BaseScore": 7.4,
+          "modificationTime": "2024-03-11T09:53:47.086548Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N/E:U/RL:O/RC:U",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 8.2,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:59:14.190706Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "assigner": "NVD",
+          "severity": "high",
+          "baseScore": 7.4,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:50:47.602540Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+          "assigner": "Red Hat",
+          "severity": "high",
+          "baseScore": 7.4,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:53:47.086548Z"
+        }
+      ],
+      "description": "## Overview\n[org.hibernate:hibernate-core](https://github.com/hibernate/hibernate-orm) is a library providing Object/Relational Mapping (ORM) support to applications, libraries, and frameworks.\n\nAffected versions of this package are vulnerable to SQL Injection. A SQL injection in the implementation of the JPA Criteria API can permit unsanitized literals when a literal is used in the SQL comments of the query. This flaw could allow an attacker to access unauthorized information or possibly conduct further attacks. The highest threat from this vulnerability is to data confidentiality and integrity.\n## Remediation\nUpgrade `org.hibernate:hibernate-core` to version 5.4.24.Final or higher.\n## References\n- [GitHub Commit](https://github.com/hibernate/hibernate-orm/commit/59fede7acaaa1579b561407aefa582311f7ebe78)\n- [Redhat CVE Details](https://access.redhat.com/security/cve/cve-2020-25638)\n",
+      "epssDetails": {
+        "percentile": "0.72262",
+        "probability": "0.00352",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2020-25638"
+        ],
+        "CWE": [
+          "CWE-89"
+        ]
+      },
+      "packageName": "org.hibernate:hibernate-core",
+      "proprietary": false,
+      "creationTime": "2020-11-19T16:51:52.251545Z",
+      "functions_new": [
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.loader.plan.exec.query.internal.SelectStatementBuilder",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.Delete",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.Insert",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.InsertSelect",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.QuerySelect",
+            "functionName": "toQueryString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.Select",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.SimpleSelect",
+            "functionName": "toStatementString"
+          }
+        },
+        {
+          "version": [
+            "[,5.4.24.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.sql.Update",
+            "functionName": "toStatementString"
+          }
+        }
+      ],
+      "alternativeIds": [],
+      "disclosureTime": "2020-11-19T16:51:45Z",
+      "exploitDetails": {
+        "sources": [
+          "Snyk"
+        ],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Proof of Concept",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.hibernate",
+        "artifactId": "hibernate-core"
+      },
+      "publicationTime": "2020-11-19T16:57:14.572204Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:53:47.086548Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.hibernate:hibernate-core@3.6.10.Final"
+      ],
+      "upgradePath": [
+        false,
+        "org.hibernate:hibernate-core@5.4.24.Final"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "org.hibernate:hibernate-core",
+      "version": "3.6.10.Final"
+    },
+    {
+      "id": "SNYK-JAVA-ORGHIBERNATE-584563",
+      "title": "SQL Injection",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "credit": [
+        "Gail Badner"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,5.3.18.Final)",
+          "[5.4.0.Final, 5.4.18.Final)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "5.3.18.Final",
+        "5.4.18.Final"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": "This vulnerability is only applicable on systems using JPA Criteria API"
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 8.1,
+      "functions": [
+        {
+          "version": [
+            "[5.1.18.Final ,5.4.18.Final)"
+          ],
+          "functionId": {
+            "filePath": "org/hibernate/query/criteria/internal/expression/LiteralExpression.java",
+            "className": "LiteralExpression",
+            "functionName": "renderProjection"
+          }
+        }
+      ],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.hibernate:hibernate-core",
+      "references": [
+        {
+          "url": "https://github.com/hibernate/hibernate-orm/pull/3438",
+          "title": "GitHub Pull Request"
+        },
+        {
+          "url": "https://hibernate.atlassian.net/browse/HHH-14077",
+          "title": "Jira Ticket"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+          "cvssV3BaseScore": 6.5,
+          "modificationTime": "2024-03-11T09:51:28.265729Z"
+        },
+        {
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+          "cvssV3BaseScore": 6.5,
+          "modificationTime": "2024-03-11T09:53:49.262550Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 8.1,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T13:56:47.723462Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+          "assigner": "NVD",
+          "severity": "medium",
+          "baseScore": 6.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:51:28.265729Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+          "assigner": "Red Hat",
+          "severity": "medium",
+          "baseScore": 6.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:53:49.262550Z"
+        }
+      ],
+      "description": "## Overview\n[org.hibernate:hibernate-core](https://github.com/hibernate/hibernate-orm) is a library providing Object/Relational Mapping (ORM) support to applications, libraries, and frameworks.\n\nAffected versions of this package are vulnerable to SQL Injection. A SQL injection in the implementation of the JPA Criteria API can permit unsanitized literals when a literal is used in the SELECT or GROUP BY parts of the query. This flaw could allow an attacker to access unauthorized information or possibly conduct further attacks.\n## Remediation\nUpgrade `org.hibernate:hibernate-core` to version 5.3.18.Final, 5.4.18.Final or higher.\n## References\n- [GitHub Pull Request](https://github.com/hibernate/hibernate-orm/pull/3438)\n- [Jira Ticket](https://hibernate.atlassian.net/browse/HHH-14077)\n",
+      "epssDetails": {
+        "percentile": "0.42899",
+        "probability": "0.00104",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-14900"
+        ],
+        "CWE": [
+          "CWE-89"
+        ]
+      },
+      "packageName": "org.hibernate:hibernate-core",
+      "proprietary": false,
+      "creationTime": "2020-07-15T13:53:15.331818Z",
+      "functions_new": [
+        {
+          "version": [
+            "[5.1.18.Final ,5.4.18.Final)"
+          ],
+          "functionId": {
+            "className": "org.hibernate.query.criteria.internal.expression.LiteralExpression",
+            "functionName": "renderProjection"
+          }
+        }
+      ],
+      "alternativeIds": [],
+      "disclosureTime": "2020-06-18T13:46:30Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.hibernate",
+        "artifactId": "hibernate-core"
+      },
+      "publicationTime": "2020-07-15T16:40:12Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:53:49.262550Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.hibernate:hibernate-core@3.6.10.Final"
+      ],
+      "upgradePath": [
+        false,
+        "org.hibernate:hibernate-core@5.3.18.Final"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "org.hibernate:hibernate-core",
+      "version": "3.6.10.Final"
+    },
+    {
+      "id": "SNYK-JAVA-ORGOWASPANTISAMY-6227504",
+      "title": "Cross-site Scripting (XSS)",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "credit": [
+        "David K."
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.7.5)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.7.5"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 6.1,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.owasp.antisamy:antisamy",
+      "references": [
+        {
+          "url": "https://github.com/nahsra/antisamy/commit/12a2e31d3855430c119480655c2bbbbb79a66ecd",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/nahsra/antisamy/commit/3e84410ed06ab67f0a4cc3183c67528210f4847d",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/HtmlUnit/htmlunit-neko/commit/27dd64a0209811979cb71b4b18798da4ca716be9",
+          "title": "neko-htmlunit Fix Commit"
+        }
+      ],
+      "cvssDetails": [
+        {
+          "assigner": "NVD",
+          "severity": "medium",
+          "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "cvssV3BaseScore": 6.1,
+          "modificationTime": "2024-03-11T09:51:40.540931Z"
+        }
+      ],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 6.1,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:09:58.952393Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "assigner": "NVD",
+          "severity": "medium",
+          "baseScore": 6.1,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-11T09:51:40.540931Z"
+        }
+      ],
+      "description": "## Overview\n[org.owasp.antisamy:antisamy](https://mvnrepository.com/artifact/org.owasp.antisamy/antisamy) is a library for performing fast, configurable cleansing of HTML coming from untrusted sources.\n\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) due to flawed parsing of HTML input in the `neko-htmlunit` dependency, when the `preserveComments` directive is enabled, which causes elements in comment tags to be interpreted as executable. \n\n ## Workaround \n\n This vulnerability can be mitigated by manually editing the policy file to delete the `preserveComments` directive or set its value to `false`.\n## Details\n\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\n\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\n\nInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\n\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\n \nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \n\n### Types of attacks\nThere are a few methods by which XSS can be manipulated:\n\n|Type|Origin|Description|\n|--|--|--|\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\n\n### Affected environments\nThe following environments are susceptible to an XSS attack:\n\n* Web servers\n* Application servers\n* Web application environments\n\n### How to prevent\nThis section describes the top best practices designed to specifically protect your code: \n\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \n* Give users the option to disable client-side scripts.\n* Redirect invalid requests.\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\n## Remediation\nUpgrade `org.owasp.antisamy:antisamy` to version 1.7.5 or higher.\n## References\n- [GitHub Commit](https://github.com/nahsra/antisamy/commit/12a2e31d3855430c119480655c2bbbbb79a66ecd)\n- [GitHub Commit](https://github.com/nahsra/antisamy/commit/3e84410ed06ab67f0a4cc3183c67528210f4847d)\n- [neko-htmlunit Fix Commit](https://github.com/HtmlUnit/htmlunit-neko/commit/27dd64a0209811979cb71b4b18798da4ca716be9)\n",
+      "epssDetails": {
+        "percentile": "0.13079",
+        "probability": "0.00044",
+        "modelVersion": "v2023.03.01"
+      },
+      "identifiers": {
+        "CVE": [
+          "CVE-2024-23635"
+        ],
+        "CWE": [
+          "CWE-79"
+        ],
+        "GHSA": [
+          "GHSA-2mrq-w8pv-5pvq"
+        ]
+      },
+      "packageName": "org.owasp.antisamy:antisamy",
+      "proprietary": false,
+      "creationTime": "2024-02-04T10:15:18.972110Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2024-02-02T18:10:04Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.owasp.antisamy",
+        "artifactId": "antisamy"
+      },
+      "publicationTime": "2024-02-04T10:15:19.173663Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-11T09:51:40.540931Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.owasp.esapi:esapi@2.5.3.1",
+        "org.owasp.antisamy:antisamy@1.7.4"
+      ],
+      "upgradePath": [
+        false,
+        "org.owasp.esapi:esapi@2.5.4.0",
+        "org.owasp.antisamy:antisamy@1.7.5"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "org.owasp.antisamy:antisamy",
+      "version": "1.7.4"
+    },
+    {
+      "id": "SNYK-JAVA-ORGOWASPESAPI-6038553",
+      "title": "Denial of Service (DoS)",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "credit": [
+        "Kevin W. Wall"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 7.5,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.owasp.esapi:esapi",
+      "references": [
+        {
+          "url": "https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin11.pdf",
+          "title": "ESAPI Documentation"
+        }
+      ],
+      "cvssDetails": [],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 7.5,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:09:26.526709Z"
+        }
+      ],
+      "description": "## Overview\n[org.owasp.esapi:esapi](https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API) is an OWASP project to create simple strong security controls for every web platform.\n\nAffected versions of this package are vulnerable to Denial of Service (DoS) in the `HTTPUtilities.getFileUploads` and `ESAPIWebApplicationFirewallFilter` methods, by uploading large numbers of files in a single upload or in a series of uploads.\r\n\r\n**Note:**\r\n\r\nIf you are using any of the `HTTPUtilities.getFileUploads` methods, you are potentially affected.\r\n\r\nUpgrading to version 2.5.2.0 addresses the issue described in [CVE-2023-24998](https://security.snyk.io/vuln/SNYK-JAVA-COMMONSFILEUPLOAD-3326457) but to be fully protected the maintainer recommends taking additional prevention steps as described below.\r\n\r\n## Workaround\r\n\r\n\r\n1) Deploying an external WAF or other suitable DoS protection.\r\n\r\n2) Adding additional defenses to user's code using `HTTPUtilities.getFileUpload`, such as requiring prior authentication.\r\n\r\n3) Restricting how much content can be uploaded per user per day or per hour.\r\n\r\n4) disabling `commons-fileupload` altogether by excluding it in the `pom.xml`, e.g.\r\n\r\n```\r\n<exclusions>\r\n  <exclusion>\r\n    <groupId>commons-fileupload</groupId>\r\n    <artifactId>commons-fileupload</artifactId>\r\n  </exclusion>\r\n</exclusions>\r\n```\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\n\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\n\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\n\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\n\nTwo common types of DoS vulnerabilities:\n\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\n\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](https://snyk.io/vuln/npm:ws:20171108)\n\n## Remediation\nThere is no fixed version for `org.owasp.esapi:esapi`.\n\n## References\n- [ESAPI Documentation](https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin11.pdf)\n",
+      "epssDetails": null,
+      "identifiers": {
+        "CVE": [],
+        "CWE": [
+          "CWE-400"
+        ],
+        "GHSA": [
+          "GHSA-7c2q-5qmr-v76q"
+        ]
+      },
+      "packageName": "org.owasp.esapi:esapi",
+      "proprietary": false,
+      "creationTime": "2023-10-29T11:24:31.349584Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2023-10-27T21:55:44Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.owasp.esapi",
+        "artifactId": "esapi"
+      },
+      "publicationTime": "2023-10-30T08:38:31.393232Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-06T14:09:26.526709Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.owasp.esapi:esapi@2.5.3.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "org.owasp.esapi:esapi",
+      "version": "2.5.3.1"
+    },
+    {
+      "id": "SNYK-JAVA-ORGOWASPESAPI-6091110",
+      "title": "Cross-site Scripting (XSS)",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:L/A:N",
+      "credit": [
+        "ESAPI team"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[0,]"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "high",
+      "cvssScore": 8.2,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.owasp.esapi:esapi",
+      "references": [
+        {
+          "url": "https://github.com/ESAPI/esapi-java-legacy/commit/7d4dd5ad5a3cd1d6184179fddd441dcfebf717e7",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin12.pdf",
+          "title": "Security Advisory"
+        }
+      ],
+      "cvssDetails": [],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:L/A:N",
+          "assigner": "Snyk",
+          "severity": "high",
+          "baseScore": 8.2,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-03-06T14:09:14.063753Z"
+        }
+      ],
+      "description": "## Overview\n[org.owasp.esapi:esapi](https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API) is an OWASP project to create simple strong security controls for every web platform.\n\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) through the `Validator.isValidSafeHTML` method. This might result in false negatives where it reports some input as safe, even if they are not, thus continuing using them without further validation, resulting in a persisting vulnerability.\r\n\r\n**Notes:**\r\n\r\n1) This is only exploitable if the `Validator.isValidSafeHTML` method is used. \r\n\r\n2) `Validator.getValidSafeHTML` is believed to be safe to use with the default `antisamy-esapi.xml` `AntiSamy` policy file.\r\n\r\n3) The vulnerable method was deprecated in 2.5.3.0\n## Details\n\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\n\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\n\nInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\n\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\n \nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \n\n### Types of attacks\nThere are a few methods by which XSS can be manipulated:\n\n|Type|Origin|Description|\n|--|--|--|\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\n\n### Affected environments\nThe following environments are susceptible to an XSS attack:\n\n* Web servers\n* Application servers\n* Web application environments\n\n### How to prevent\nThis section describes the top best practices designed to specifically protect your code: \n\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \n* Give users the option to disable client-side scripts.\n* Redirect invalid requests.\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\n## Remediation\nThere is no fixed version for `org.owasp.esapi:esapi`.\n\n## References\n- [GitHub Commit](https://github.com/ESAPI/esapi-java-legacy/commit/7d4dd5ad5a3cd1d6184179fddd441dcfebf717e7)\n- [Security Advisory](https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin12.pdf)\n",
+      "epssDetails": null,
+      "identifiers": {
+        "CVE": [],
+        "CWE": [
+          "CWE-79"
+        ],
+        "GHSA": [
+          "GHSA-r68h-jhhj-9jvm"
+        ]
+      },
+      "packageName": "org.owasp.esapi:esapi",
+      "proprietary": false,
+      "creationTime": "2023-11-28T07:25:58.027140Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2023-11-27T17:25:46Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.owasp.esapi",
+        "artifactId": "esapi"
+      },
+      "publicationTime": "2023-11-28T10:40:01.738866Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-03-06T14:09:14.063753Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "high",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.owasp.esapi:esapi@2.5.3.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "org.owasp.esapi:esapi",
+      "version": "2.5.3.1"
+    },
+    {
+      "id": "SNYK-JAVA-ORGSPRINGFRAMEWORK-7687446",
+      "title": "Allocation of Resources Without Limits or Throttling",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+      "credit": [
+        "popko"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[5.3.0,5.3.39)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "5.3.39"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 5.3,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.springframework:spring-expression",
+      "references": [
+        {
+          "url": "https://github.com/spring-projects/spring-framework/commit/a3a48a241c6e611d37dcc0444979644ef9eb701e",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/spring-projects/spring-framework/commit/f44d13cb7816e586b86c02421af4f5498391111c",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://spring.io/security/cve-2024-38808",
+          "title": "Spring Security Advisory"
+        }
+      ],
+      "cvssDetails": [],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "4.0",
+          "modificationTime": "2024-08-15T08:48:32.442502Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 4.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-08-15T08:48:32.442502Z"
+        }
+      ],
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to Allocation of Resources Without Limits or Throttling. **Note:** An application is vulnerable when the following is true:\n\nThe application evaluates user-supplied SpEL expressions.\n\n## Workaround\n\nEvaluation of user-supplied SpEL expressions should be avoided when possible; otherwise, user-supplied SpEL expressions should be evaluated with a `SimpleEvaluationContext` in read-only mode. No other steps are necessary.\n## Remediation\nUpgrade `org.springframework:spring-expression` to version 5.3.39 or higher.\n## References\n- [GitHub Commit](https://github.com/spring-projects/spring-framework/commit/a3a48a241c6e611d37dcc0444979644ef9eb701e)\n- [GitHub Commit](https://github.com/spring-projects/spring-framework/commit/f44d13cb7816e586b86c02421af4f5498391111c)\n- [Spring Security Advisory](https://spring.io/security/cve-2024-38808)\n",
+      "epssDetails": null,
+      "identifiers": {
+        "CVE": [
+          "CVE-2024-38808"
+        ],
+        "CWE": [
+          "CWE-770"
+        ]
+      },
+      "packageName": "org.springframework:spring-expression",
+      "proprietary": false,
+      "creationTime": "2024-08-15T08:48:32.035191Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2024-08-14T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.springframework",
+        "artifactId": "spring-expression"
+      },
+      "publicationTime": "2024-08-15T08:48:32.366163Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-08-15T08:48:32.442502Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.springframework:spring-context@5.3.34",
+        "org.springframework:spring-expression@5.3.34"
+      ],
+      "upgradePath": [
+        false,
+        "org.springframework:spring-context@5.3.39",
+        "org.springframework:spring-expression@5.3.39"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "org.springframework:spring-expression",
+      "version": "5.3.34"
+    },
+    {
+      "id": "SNYK-JAVA-ORGSPRINGFRAMEWORK-7687447",
+      "title": "Denial of Service (DoS)",
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "credit": [
+        "Seokchan Yoon"
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,5.3.38)",
+          "[6.0.0, 6.0.23)",
+          "[6.1.0, 6.1.12)"
+        ]
+      },
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "5.3.38",
+        "6.0.23",
+        "6.1.12"
+      ],
+      "patches": [],
+      "insights": {
+        "triageAdvice": null
+      },
+      "language": "java",
+      "severity": "medium",
+      "cvssScore": 6.9,
+      "functions": [],
+      "malicious": false,
+      "isDisputed": false,
+      "moduleName": "org.springframework:spring-web",
+      "references": [
+        {
+          "url": "https://github.com/spring-projects/spring-framework/commit/bb17ad8314b81850a939fd265fb53b3361705e85",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/spring-projects/spring-framework/commit/fe4fd004291a1f2704281eb839609cf9e2fb5bea",
+          "title": "GitHub Commit"
+        },
+        {
+          "url": "https://github.com/spring-projects/spring-framework/issues/33372",
+          "title": "GitHub Issue"
+        },
+        {
+          "url": "https://github.com/spring-projects/spring-framework/pull/33370",
+          "title": "GitHub PR"
+        },
+        {
+          "url": "https://github.com/spring-projects/spring-framework/pull/33374",
+          "title": "GitHub PR"
+        },
+        {
+          "url": "https://spring.io/security/cve-2024-38809",
+          "title": "Spring Security Advisory"
+        }
+      ],
+      "cvssDetails": [],
+      "cvssSources": [
+        {
+          "type": "primary",
+          "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 6.9,
+          "cvssVersion": "4.0",
+          "modificationTime": "2024-08-15T09:11:43.871344Z"
+        },
+        {
+          "type": "secondary",
+          "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "assigner": "Snyk",
+          "severity": "medium",
+          "baseScore": 5.3,
+          "cvssVersion": "3.1",
+          "modificationTime": "2024-08-15T09:11:43.871344Z"
+        }
+      ],
+      "description": "## Overview\n[org.springframework:spring-web](https://github.com/spring-projects/spring-framework) is a package that provides a comprehensive programming and configuration model for modern Java-based enterprise applications - on any kind of deployment platform.\n\nAffected versions of this package are vulnerable to Denial of Service (DoS) due to improper ETag prefix validation when the application parses ETags from the `If-Match` or `If-None-Match` request headers.\nAn attacker can exploit this vulnerability by sending a maliciously crafted conditional HTTP request.\n\n\n\n## Workaround\n\nUsers of older, unsupported versions could enforce a size limit on `If-Match` and `If-None-Match` headers, e.g. through a `Filter`.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\n\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\n\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\n\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\n\nTwo common types of DoS vulnerabilities:\n\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\n\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](https://snyk.io/vuln/npm:ws:20171108)\n\n## Remediation\nUpgrade `org.springframework:spring-web` to version 5.3.38, 6.0.23, 6.1.12 or higher.\n## References\n- [GitHub Commit](https://github.com/spring-projects/spring-framework/commit/bb17ad8314b81850a939fd265fb53b3361705e85)\n- [GitHub Commit](https://github.com/spring-projects/spring-framework/commit/fe4fd004291a1f2704281eb839609cf9e2fb5bea)\n- [GitHub Issue](https://github.com/spring-projects/spring-framework/issues/33372)\n- [GitHub PR](https://github.com/spring-projects/spring-framework/pull/33370)\n- [GitHub PR](https://github.com/spring-projects/spring-framework/pull/33374)\n- [Spring Security Advisory](https://spring.io/security/cve-2024-38809)\n",
+      "epssDetails": null,
+      "identifiers": {
+        "CVE": [
+          "CVE-2024-38809"
+        ],
+        "CWE": [
+          "CWE-400"
+        ]
+      },
+      "packageName": "org.springframework:spring-web",
+      "proprietary": false,
+      "creationTime": "2024-08-15T09:11:43.544255Z",
+      "functions_new": [],
+      "alternativeIds": [],
+      "disclosureTime": "2024-08-14T00:00:00Z",
+      "exploitDetails": {
+        "sources": [],
+        "maturityLevels": [
+          {
+            "type": "secondary",
+            "level": "Not Defined",
+            "format": "CVSSv3"
+          },
+          {
+            "type": "primary",
+            "level": "Not Defined",
+            "format": "CVSSv4"
+          }
+        ]
+      },
+      "packageManager": "maven",
+      "mavenModuleName": {
+        "groupId": "org.springframework",
+        "artifactId": "spring-web"
+      },
+      "publicationTime": "2024-08-15T09:11:43.817265Z",
+      "severityBasedOn": "CVSS",
+      "modificationTime": "2024-08-15T09:11:43.871344Z",
+      "socialTrendAlert": false,
+      "severityWithCritical": "medium",
+      "from": [
+        "org.owasp:benchmark@1.2",
+        "org.springframework:spring-web@5.3.34"
+      ],
+      "upgradePath": [
+        false,
+        "org.springframework:spring-web@5.3.38"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "org.springframework:spring-web",
+      "version": "5.3.34"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 123,
+  "org": "jakscha",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-1.0": {
+        "licenseType": "AGPL-1.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      }
+    }
+  },
+  "packageManager": "maven",
+  "ignoreSettings": {
+    "adminOnly": false,
+    "reasonRequired": false,
+    "disregardFilesystemIgnores": false
+  },
+  "summary": "12 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [
+      {
+        "id": "SNYK-JAVA-ORGBOUNCYCASTLE-5771339",
+        "title": "Information Exposure",
+        "CVSSv3": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N",
+        "credit": [
+          "Unknown"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "java",
+        "severity": "medium",
+        "cvssScore": 4.7,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "org.bouncycastle:bcprov-jdk15on",
+        "references": [
+          {
+            "url": "https://github.com/bcgit/bc-java/commit/b00b58873643abc7e834f07e345e0165bb3a1786",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/bcgit/bc-java/wiki/CVE-2023-33201",
+            "title": "GitHub Wiki"
+          },
+          {
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2215465",
+            "title": "RedHat Bugzilla Bug"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "NVD",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+            "cvssV3BaseScore": 5.3,
+            "modificationTime": "2024-03-11T09:53:23.489671Z"
+          },
+          {
+            "assigner": "SUSE",
+            "severity": "high",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+            "cvssV3BaseScore": 8.1,
+            "modificationTime": "2024-03-11T09:53:25.282919Z"
+          },
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+            "cvssV3BaseScore": 5.3,
+            "modificationTime": "2024-03-11T09:54:01.546312Z"
+          }
+        ],
+        "cvssSources": [
+          {
+            "type": "primary",
+            "vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:N/A:N",
+            "assigner": "Snyk",
+            "severity": "medium",
+            "baseScore": 4.7,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-06T14:05:05.863503Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+            "assigner": "NVD",
+            "severity": "medium",
+            "baseScore": 5.3,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-11T09:53:23.489671Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+            "assigner": "SUSE",
+            "severity": "high",
+            "baseScore": 8.1,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-11T09:53:25.282919Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "baseScore": 5.3,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-11T09:54:01.546312Z"
+          }
+        ],
+        "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Information Exposure due to missing validation for the X.500 name of any certificate, subject, or issuer. The presence of a wild card may lead to information disclosure. This could allow a malicious user to obtain unauthorized information via blind LDAP Injection, exploring the environment and enumerating data. \r\n\r\n**Note:**\r\n\r\nThe exploit depends on the structure of the target LDAP directory as well as what kind of errors are exposed to the user.\n## Remediation\nA fix was pushed into the `master` branch but not yet published.\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/b00b58873643abc7e834f07e345e0165bb3a1786)\n- [GitHub Wiki](https://github.com/bcgit/bc-java/wiki/CVE-2023-33201)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=2215465)\n",
+        "epssDetails": {
+          "percentile": "0.36394",
+          "probability": "0.00084",
+          "modelVersion": "v2023.03.01"
+        },
+        "identifiers": {
+          "CVE": [
+            "CVE-2023-33201"
+          ],
+          "CWE": [
+            "CWE-200"
+          ]
+        },
+        "packageName": "org.bouncycastle:bcprov-jdk15on",
+        "proprietary": false,
+        "creationTime": "2023-07-11T15:15:48.237049Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-06-16T00:00:00Z",
+        "exploitDetails": {
+          "sources": [],
+          "maturityLevels": [
+            {
+              "type": "secondary",
+              "level": "Not Defined",
+              "format": "CVSSv3"
+            },
+            {
+              "type": "primary",
+              "level": "Not Defined",
+              "format": "CVSSv4"
+            }
+          ]
+        },
+        "packageManager": "maven",
+        "mavenModuleName": {
+          "groupId": "org.bouncycastle",
+          "artifactId": "bcprov-jdk15on"
+        },
+        "publicationTime": "2023-06-30T08:15:58.270885Z",
+        "severityBasedOn": "CVSS",
+        "modificationTime": "2024-03-11T09:54:01.546312Z",
+        "socialTrendAlert": false,
+        "packagePopularityRank": 99,
+        "from": [
+          "org.owasp:benchmark@1.2",
+          "org.bouncycastle:bcprov-jdk15on@1.70"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "isRuntime": false,
+        "name": "org.bouncycastle:bcprov-jdk15on",
+        "version": "1.70",
+        "severityWithCritical": "medium"
+      },
+      {
+        "id": "SNYK-JAVA-ORGBOUNCYCASTLE-6084022",
+        "title": "Uncontrolled Resource Consumption ('Resource Exhaustion')",
+        "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "credit": [
+          "Amazon AWS Security Team"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "java",
+        "severity": "medium",
+        "cvssScore": 5.5,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "org.bouncycastle:bcprov-jdk15on",
+        "references": [
+          {
+            "url": "https://github.com/bcgit/bc-java/commit/eff6adf03f426dc4d55e8305255eb38c811ddda7",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/bcgit/bc-java/wiki/CVE-2023-33202",
+            "title": "GitHub Wiki"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 5.5,
+            "modificationTime": "2024-06-19T13:32:28.019885Z"
+          },
+          {
+            "assigner": "NVD",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 5.5,
+            "modificationTime": "2024-03-11T09:54:08.209045Z"
+          }
+        ],
+        "cvssSources": [
+          {
+            "type": "primary",
+            "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "assigner": "Snyk",
+            "severity": "medium",
+            "baseScore": 5.5,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-06T14:09:26.802255Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "baseScore": 5.5,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-06-19T13:32:28.019885Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "assigner": "NVD",
+            "severity": "medium",
+            "baseScore": 5.5,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-11T09:54:08.209045Z"
+          }
+        ],
+        "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Uncontrolled Resource Consumption ('Resource Exhaustion') within the `org.bouncycastle.openssl.PEMParser` class. Parsing a file that has crafted `ASN.1` data through the `PEMParser` causes an `OutOfMemoryError`.\r\n\r\n## Workaround\r\nThe attack can be avoided by filtering `PEM` requests containing `EXTERNAL` tagged encodings.\n## Remediation\nThere is no fixed version for `org.bouncycastle:bcprov-jdk15on`.\n\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/eff6adf03f426dc4d55e8305255eb38c811ddda7)\n- [GitHub Wiki](https://github.com/bcgit/bc-java/wiki/CVE-2023-33202)\n",
+        "epssDetails": {
+          "percentile": "0.16378",
+          "probability": "0.00045",
+          "modelVersion": "v2023.03.01"
+        },
+        "identifiers": {
+          "CVE": [
+            "CVE-2023-33202"
+          ],
+          "CWE": [
+            "CWE-400"
+          ]
+        },
+        "packageName": "org.bouncycastle:bcprov-jdk15on",
+        "proprietary": false,
+        "creationTime": "2023-11-24T08:10:03.845529Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-11-23T16:44:11Z",
+        "exploitDetails": {
+          "sources": [],
+          "maturityLevels": [
+            {
+              "type": "secondary",
+              "level": "Not Defined",
+              "format": "CVSSv3"
+            },
+            {
+              "type": "primary",
+              "level": "Not Defined",
+              "format": "CVSSv4"
+            }
+          ]
+        },
+        "packageManager": "maven",
+        "mavenModuleName": {
+          "groupId": "org.bouncycastle",
+          "artifactId": "bcprov-jdk15on"
+        },
+        "publicationTime": "2023-11-24T08:21:18.093798Z",
+        "severityBasedOn": "CVSS",
+        "modificationTime": "2024-06-19T13:32:28.019885Z",
+        "socialTrendAlert": false,
+        "packagePopularityRank": 99,
+        "from": [
+          "org.owasp:benchmark@1.2",
+          "org.bouncycastle:bcprov-jdk15on@1.70"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "isRuntime": false,
+        "name": "org.bouncycastle:bcprov-jdk15on",
+        "version": "1.70",
+        "severityWithCritical": "medium"
+      },
+      {
+        "id": "SNYK-JAVA-ORGBOUNCYCASTLE-6613080",
+        "title": "Allocation of Resources Without Limits or Throttling",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "credit": [
+          "Unknown"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[1.63,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "java",
+        "severity": "medium",
+        "cvssScore": 5.3,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "org.bouncycastle:bcprov-jdk15on",
+        "references": [
+          {
+            "url": "https://github.com/bcgit/bc-csharp/commit/45c6b993945f01076e386cb59988b1836a329999",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/bcgit/bc-java/commit/efc498ca4caa340ac2fe11f2efee06c1a294501f",
+            "title": "GitHub Commit"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 6.5,
+            "modificationTime": "2024-08-09T13:34:05.609976Z"
+          }
+        ],
+        "cvssSources": [
+          {
+            "type": "primary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+            "assigner": "Snyk",
+            "severity": "medium",
+            "baseScore": 5.3,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-08-08T13:39:10.396709Z"
+          },
+          {
+            "type": "secondary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "baseScore": 6.5,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-08-09T13:34:05.609976Z"
+          }
+        ],
+        "description": "## Overview\n[org.bouncycastle:bcprov-jdk15on](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on) is a Java implementation of cryptographic algorithms.\n\nAffected versions of this package are vulnerable to Allocation of Resources Without Limits or Throttling in the `solveQuadraticEquation()` function used for certificate verification in `ECCurve.java`. Passing a large f2m parameter can cause excessive CPU consumption.\n## Remediation\nThere is no fixed version for `org.bouncycastle:bcprov-jdk15on`.\n\n## References\n- [GitHub Commit](https://github.com/bcgit/bc-csharp/commit/45c6b993945f01076e386cb59988b1836a329999)\n- [GitHub Commit](https://github.com/bcgit/bc-java/commit/efc498ca4caa340ac2fe11f2efee06c1a294501f)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [
+            "CVE-2024-29857"
+          ],
+          "CWE": [
+            "CWE-770"
+          ]
+        },
+        "packageName": "org.bouncycastle:bcprov-jdk15on",
+        "proprietary": false,
+        "creationTime": "2024-04-14T15:09:02.748589Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2024-04-11T08:06:20Z",
+        "exploitDetails": {
+          "sources": [],
+          "maturityLevels": [
+            {
+              "type": "secondary",
+              "level": "Not Defined",
+              "format": "CVSSv3"
+            },
+            {
+              "type": "primary",
+              "level": "Not Defined",
+              "format": "CVSSv4"
+            }
+          ]
+        },
+        "packageManager": "maven",
+        "mavenModuleName": {
+          "groupId": "org.bouncycastle",
+          "artifactId": "bcprov-jdk15on"
+        },
+        "publicationTime": "2024-04-14T15:09:02.939501Z",
+        "severityBasedOn": "CVSS",
+        "modificationTime": "2024-08-09T13:34:05.609976Z",
+        "socialTrendAlert": false,
+        "packagePopularityRank": 99,
+        "from": [
+          "org.owasp:benchmark@1.2",
+          "org.bouncycastle:bcprov-jdk15on@1.70"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "isRuntime": false,
+        "name": "org.bouncycastle:bcprov-jdk15on",
+        "version": "1.70",
+        "severityWithCritical": "medium"
+      },
+      {
+        "id": "SNYK-JAVA-ORGOWASPESAPI-6038553",
+        "title": "Denial of Service (DoS)",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "credit": [
+          "Kevin W. Wall"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "java",
+        "severity": "high",
+        "cvssScore": 7.5,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "org.owasp.esapi:esapi",
+        "references": [
+          {
+            "url": "https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin11.pdf",
+            "title": "ESAPI Documentation"
+          }
+        ],
+        "cvssDetails": [],
+        "cvssSources": [
+          {
+            "type": "primary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "assigner": "Snyk",
+            "severity": "high",
+            "baseScore": 7.5,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-06T14:09:26.526709Z"
+          }
+        ],
+        "description": "## Overview\n[org.owasp.esapi:esapi](https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API) is an OWASP project to create simple strong security controls for every web platform.\n\nAffected versions of this package are vulnerable to Denial of Service (DoS) in the `HTTPUtilities.getFileUploads` and `ESAPIWebApplicationFirewallFilter` methods, by uploading large numbers of files in a single upload or in a series of uploads.\r\n\r\n**Note:**\r\n\r\nIf you are using any of the `HTTPUtilities.getFileUploads` methods, you are potentially affected.\r\n\r\nUpgrading to version 2.5.2.0 addresses the issue described in [CVE-2023-24998](https://security.snyk.io/vuln/SNYK-JAVA-COMMONSFILEUPLOAD-3326457) but to be fully protected the maintainer recommends taking additional prevention steps as described below.\r\n\r\n## Workaround\r\n\r\n\r\n1) Deploying an external WAF or other suitable DoS protection.\r\n\r\n2) Adding additional defenses to user's code using `HTTPUtilities.getFileUpload`, such as requiring prior authentication.\r\n\r\n3) Restricting how much content can be uploaded per user per day or per hour.\r\n\r\n4) disabling `commons-fileupload` altogether by excluding it in the `pom.xml`, e.g.\r\n\r\n```\r\n<exclusions>\r\n  <exclusion>\r\n    <groupId>commons-fileupload</groupId>\r\n    <artifactId>commons-fileupload</artifactId>\r\n  </exclusion>\r\n</exclusions>\r\n```\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\n\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\n\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\n\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\n\nTwo common types of DoS vulnerabilities:\n\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\n\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](https://snyk.io/vuln/npm:ws:20171108)\n\n## Remediation\nThere is no fixed version for `org.owasp.esapi:esapi`.\n\n## References\n- [ESAPI Documentation](https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin11.pdf)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-7c2q-5qmr-v76q"
+          ]
+        },
+        "packageName": "org.owasp.esapi:esapi",
+        "proprietary": false,
+        "creationTime": "2023-10-29T11:24:31.349584Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-10-27T21:55:44Z",
+        "exploitDetails": {
+          "sources": [],
+          "maturityLevels": [
+            {
+              "type": "secondary",
+              "level": "Not Defined",
+              "format": "CVSSv3"
+            },
+            {
+              "type": "primary",
+              "level": "Not Defined",
+              "format": "CVSSv4"
+            }
+          ]
+        },
+        "packageManager": "maven",
+        "mavenModuleName": {
+          "groupId": "org.owasp.esapi",
+          "artifactId": "esapi"
+        },
+        "publicationTime": "2023-10-30T08:38:31.393232Z",
+        "severityBasedOn": "CVSS",
+        "modificationTime": "2024-03-06T14:09:26.526709Z",
+        "socialTrendAlert": false,
+        "packagePopularityRank": 99,
+        "from": [
+          "org.owasp:benchmark@1.2",
+          "org.owasp.esapi:esapi@2.5.3.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "isRuntime": false,
+        "name": "org.owasp.esapi:esapi",
+        "version": "2.5.3.1",
+        "severityWithCritical": "high"
+      },
+      {
+        "id": "SNYK-JAVA-ORGOWASPESAPI-6091110",
+        "title": "Cross-site Scripting (XSS)",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:L/A:N",
+        "credit": [
+          "ESAPI team"
+        ],
+        "semver": {
+          "vulnerable": [
+            "[0,]"
+          ]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "java",
+        "severity": "high",
+        "cvssScore": 8.2,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "org.owasp.esapi:esapi",
+        "references": [
+          {
+            "url": "https://github.com/ESAPI/esapi-java-legacy/commit/7d4dd5ad5a3cd1d6184179fddd441dcfebf717e7",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin12.pdf",
+            "title": "Security Advisory"
+          }
+        ],
+        "cvssDetails": [],
+        "cvssSources": [
+          {
+            "type": "primary",
+            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:L/A:N",
+            "assigner": "Snyk",
+            "severity": "high",
+            "baseScore": 8.2,
+            "cvssVersion": "3.1",
+            "modificationTime": "2024-03-06T14:09:14.063753Z"
+          }
+        ],
+        "description": "## Overview\n[org.owasp.esapi:esapi](https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API) is an OWASP project to create simple strong security controls for every web platform.\n\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) through the `Validator.isValidSafeHTML` method. This might result in false negatives where it reports some input as safe, even if they are not, thus continuing using them without further validation, resulting in a persisting vulnerability.\r\n\r\n**Notes:**\r\n\r\n1) This is only exploitable if the `Validator.isValidSafeHTML` method is used. \r\n\r\n2) `Validator.getValidSafeHTML` is believed to be safe to use with the default `antisamy-esapi.xml` `AntiSamy` policy file.\r\n\r\n3) The vulnerable method was deprecated in 2.5.3.0\n## Details\n\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\n\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\n\nInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\n\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\n \nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \n\n### Types of attacks\nThere are a few methods by which XSS can be manipulated:\n\n|Type|Origin|Description|\n|--|--|--|\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\n\n### Affected environments\nThe following environments are susceptible to an XSS attack:\n\n* Web servers\n* Application servers\n* Web application environments\n\n### How to prevent\nThis section describes the top best practices designed to specifically protect your code: \n\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \n* Give users the option to disable client-side scripts.\n* Redirect invalid requests.\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\n## Remediation\nThere is no fixed version for `org.owasp.esapi:esapi`.\n\n## References\n- [GitHub Commit](https://github.com/ESAPI/esapi-java-legacy/commit/7d4dd5ad5a3cd1d6184179fddd441dcfebf717e7)\n- [Security Advisory](https://github.com/ESAPI/esapi-java-legacy/blob/develop/documentation/ESAPI-security-bulletin12.pdf)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-79"
+          ],
+          "GHSA": [
+            "GHSA-r68h-jhhj-9jvm"
+          ]
+        },
+        "packageName": "org.owasp.esapi:esapi",
+        "proprietary": false,
+        "creationTime": "2023-11-28T07:25:58.027140Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2023-11-27T17:25:46Z",
+        "exploitDetails": {
+          "sources": [],
+          "maturityLevels": [
+            {
+              "type": "secondary",
+              "level": "Not Defined",
+              "format": "CVSSv3"
+            },
+            {
+              "type": "primary",
+              "level": "Not Defined",
+              "format": "CVSSv4"
+            }
+          ]
+        },
+        "packageManager": "maven",
+        "mavenModuleName": {
+          "groupId": "org.owasp.esapi",
+          "artifactId": "esapi"
+        },
+        "publicationTime": "2023-11-28T10:40:01.738866Z",
+        "severityBasedOn": "CVSS",
+        "modificationTime": "2024-03-06T14:09:14.063753Z",
+        "socialTrendAlert": false,
+        "packagePopularityRank": 99,
+        "from": [
+          "org.owasp:benchmark@1.2",
+          "org.owasp.esapi:esapi@2.5.3.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "isRuntime": false,
+        "name": "org.owasp.esapi:esapi",
+        "version": "2.5.3.1",
+        "severityWithCritical": "high"
+      }
+    ],
+    "upgrade": {
+      "org.hibernate:hibernate-core@3.6.10.Final": {
+        "upgradeTo": "org.hibernate:hibernate-core@5.4.24.Final",
+        "upgrades": [
+          "org.hibernate:hibernate-core@3.6.10.Final",
+          "org.hibernate:hibernate-core@3.6.10.Final",
+          "dom4j:dom4j@1.6.1",
+          "dom4j:dom4j@1.6.1"
+        ],
+        "vulns": [
+          "SNYK-JAVA-ORGHIBERNATE-1041788",
+          "SNYK-JAVA-ORGHIBERNATE-584563",
+          "SNYK-JAVA-DOM4J-174153",
+          "SNYK-JAVA-DOM4J-2812975"
+        ]
+      },
+      "org.owasp.esapi:esapi@2.5.3.1": {
+        "upgradeTo": "org.owasp.esapi:esapi@2.5.4.0",
+        "upgrades": [
+          "org.owasp.antisamy:antisamy@1.7.4"
+        ],
+        "vulns": [
+          "SNYK-JAVA-ORGOWASPANTISAMY-6227504"
+        ]
+      },
+      "org.springframework:spring-context@5.3.34": {
+        "upgradeTo": "org.springframework:spring-context@5.3.39",
+        "upgrades": [
+          "org.springframework:spring-expression@5.3.34"
+        ],
+        "vulns": [
+          "SNYK-JAVA-ORGSPRINGFRAMEWORK-7687446"
+        ]
+      },
+      "org.springframework:spring-web@5.3.34": {
+        "upgradeTo": "org.springframework:spring-web@5.3.38",
+        "upgrades": [
+          "org.springframework:spring-web@5.3.34"
+        ],
+        "vulns": [
+          "SNYK-JAVA-ORGSPRINGFRAMEWORK-7687447"
+        ]
+      }
+    },
+    "patch": {},
+    "ignore": {},
+    "pin": {}
+  },
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 12,
+  "projectName": "org.owasp:benchmark",
+  "displayTargetFile": "pom.xml",
+  "hasUnknownVersions": false,
+  "path": "/github/workspace"
+}
