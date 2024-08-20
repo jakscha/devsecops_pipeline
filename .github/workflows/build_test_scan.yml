@@ -160,7 +160,7 @@ jobs:
 
   evaluate_results:
     needs: [build-test, sast, dast1, dast2, secret_scan, dependency_scan]
-    if: always()
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -198,7 +198,7 @@ jobs:
       - run: python3 .github/workflows/result_validation.py
 
       - name: Comment PR positive
-        if: ${{ env.SCAN_VALID == 'True' && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'True' }}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -207,7 +207,7 @@ jobs:
 
 
       - name: Comment PR negative
-        if: ${{ env.SCAN_VALID == 'False' && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'False' }}
         uses: peter-evans/create-or-update-comment@v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -215,7 +215,7 @@ jobs:
           body: "The security scan was not valid. ${{ env.SCAN_RESULT }}"
 
       - name: Fail workflow if scan is invalid
-        if: ${{ env.SCAN_VALID == 'False' && github.event_name == 'pull_request'}}
+        if: ${{ env.SCAN_VALID == 'False' }}
         run: |
           echo "The security scan was not valid. Failing the workflow."
           exit 1
