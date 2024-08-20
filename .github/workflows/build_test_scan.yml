@@ -187,7 +187,7 @@ jobs:
 
 
   evaluate_scanning_results:
-    needs: [build-test, sast, dast1, dast2, secret_scan, dependency_scan]
+    needs: [build-test, sast, dast1, dast2, container_scan, secret_scan, dependency_scan]
     if: always()
     runs-on: ubuntu-latest
 
