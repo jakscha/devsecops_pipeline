@@ -158,7 +158,30 @@ jobs:
         with:
           extra_args: --json
 
-  evaluate_results:
+  evaluate_test_results:
+    needs: [build-test]
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Comment PR when test passed
+        if: needs.build-test.result == 'success'
+        uses: peter-evans/create-or-update-comment@v4.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "All functional test passed."
+
+      - name: Comment PR when test failed
+        if: needs.build-test.result == 'failure'
+        uses: peter-evans/create-or-update-comment@v4.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "Oops, not all test passed."
+
+
+  evaluate_scanning_results:
     needs: [build-test, sast, dast1, dast2, secret_scan, dependency_scan]
     if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
