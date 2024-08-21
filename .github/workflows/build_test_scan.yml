@@ -110,6 +110,7 @@ jobs:
 
   dependency_scan:
     runs-on: ubuntu-latest
+    environment: build-test-scan
 
     steps:
       - uses: actions/checkout@master
