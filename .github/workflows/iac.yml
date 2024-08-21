@@ -1,3 +1,4 @@
+# Writing comment to trigger pipeline
 name: Scan GitHub Actions configuration
 
 on:
